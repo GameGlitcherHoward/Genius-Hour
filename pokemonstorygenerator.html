@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Story Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #ff0000;
+        }
+        .story-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            border: 2px solid #b0c4de;
+        }
+        .button-container {
+            margin-top: 30px;
+        }
+        button {
+            background-color: #ff0000;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to the Pokémon Story Generator!</h1>
+    <p>Click the button below to generate a random Pokémon story!</p>
+
+    <div class="story-container" id="storyContainer">
+        <p id="storyText">Your Pokémon story will appear here...</p>
+    </div>
+
+    <div class="button-container">
+        <button onclick="generatePokemonStory()">Generate Pokémon Story</button>
+    </div>
+
+    <script>
+        const pokemonList = ["Pikachu", "Charmander", "Bulbasaur", "Squirtle", "Eevee", "Jigglypuff", "Snorlax", "Meowth"];
+        const locations = ["Pallet Town", "Viridian Forest", "Cinnabar Island", "Cerulean City", "Mt. Moon", "Lavender Town"];
+        const events = [
+            "found a mysterious item on the ground.",
+            "encountered a wild Pokémon that needed help.",
+            "competed in a tough battle with a Gym Leader.",
+            "got lost in the woods and met a new friend.",
+            "discovered a secret cave with rare Pokémon inside.",
+            "rescued a friend from Team Rocket's trap."
+        ];
+        const companions = ["Ash", "Misty", "Brock", "Gary", "Professor Oak"];
+
+        function generatePokemonStory() {
+            // Randomly select elements for the story
+            const pokemon = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+            const location = locations[Math.floor(Math.random() * locations.length)];
+            const event = events[Math.floor(Math.random() * events.length)];
+            const companion = companions[Math.floor(Math.random() * companions.length)];
+
+            // Create the story
+            const story = `${pokemon} was traveling through ${location} when they ${event} ${companion} was there to help!`;
+            
+            // Display the story
+            document.getElementById('storyText').textContent = story;
+        }
+    </script>
+
+</body>
+</html>
