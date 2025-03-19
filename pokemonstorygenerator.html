@@ -20,6 +20,10 @@
             background-color: #f0f8ff;
             border-radius: 8px;
             border: 2px solid #b0c4de;
+            min-height: 300px;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
         }
         .button-container {
             margin-top: 30px;
@@ -41,7 +45,7 @@
 <body>
 
     <h1>Welcome to the Pokémon Story Generator!</h1>
-    <p>Click the button below to generate a random Pokémon story!</p>
+    <p>Click the button below to generate a random Pokémon story with 3 paragraphs!</p>
 
     <div class="story-container" id="storyContainer">
         <p id="storyText">Your Pokémon story will appear here...</p>
@@ -60,22 +64,51 @@
             "competed in a tough battle with a Gym Leader.",
             "got lost in the woods and met a new friend.",
             "discovered a secret cave with rare Pokémon inside.",
-            "rescued a friend from Team Rocket's trap."
+            "rescued a friend from Team Rocket's trap.",
+            "took part in a Pokémon contest and won a ribbon.",
+            "befriended a legendary Pokémon during an adventure."
         ];
-        const companions = ["Ash", "Misty", "Brock", "Gary", "Professor Oak"];
+        const companions = ["Ash", "Misty", "Brock", "Gary", "Professor Oak", "Team Rocket", "Clemont"];
+        const challenges = [
+            "a fierce storm that made it hard to see anything.",
+            "a tough wild Pokémon that refused to be caught.",
+            "an ambush by Team Rocket, who tried to steal their Pokémon.",
+            "a trap set by a rival trainer who wanted to take their Pokémon.",
+            "a mountain that was difficult to climb without the right tools."
+        ];
+        const resolutions = [
+            "managed to escape with the help of a clever plan.",
+            "defeated the enemy and returned victorious.",
+            "found an unexpected ally who helped solve the problem.",
+            "used a powerful attack to defeat the wild Pokémon.",
+            "found the treasure and uncovered a hidden secret about the region."
+        ];
 
         function generatePokemonStory() {
             // Randomly select elements for the story
             const pokemon = pokemonList[Math.floor(Math.random() * pokemonList.length)];
             const location = locations[Math.floor(Math.random() * locations.length)];
-            const event = events[Math.floor(Math.random() * events.length)];
+            const event1 = events[Math.floor(Math.random() * events.length)];
+            const event2 = events[Math.floor(Math.random() * events.length)];
             const companion = companions[Math.floor(Math.random() * companions.length)];
+            const challenge = challenges[Math.floor(Math.random() * challenges.length)];
+            const resolution = resolutions[Math.floor(Math.random() * resolutions.length)];
 
-            // Create the story
-            const story = `${pokemon} was traveling through ${location} when they ${event} ${companion} was there to help!`;
+            // Build the story with 3 paragraphs
+            const story = `
+                <p><strong>Paragraph 1:</strong> One day, ${pokemon} was traveling through ${location} when they ${event1}. 
+                As they explored, they discovered that something unusual was happening. While they were examining the situation, 
+                ${companion} showed up to offer assistance, and together they set out to solve the mystery of the strange event.</p>
+                
+                <p><strong>Paragraph 2:</strong> As they ventured deeper into the area, ${pokemon} and ${companion} encountered a challenge: ${challenge}. 
+                The situation seemed hopeless, but ${pokemon} was determined to overcome the obstacle. They realized that they had to work together to face the challenge head-on.</p>
+                
+                <p><strong>Paragraph 3:</strong> In the end, with a lot of teamwork and bravery, ${pokemon} and ${companion} ${resolution}. 
+                They celebrated their victory and shared stories of their adventure, knowing that this was a journey they would never forget.</p>
+            `;
             
             // Display the story
-            document.getElementById('storyText').textContent = story;
+            document.getElementById('storyText').innerHTML = story;
         }
     </script>
 
