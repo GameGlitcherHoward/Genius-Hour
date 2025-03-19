@@ -45,7 +45,7 @@
 <body>
 
     <h1>Welcome to the Pokémon Story Generator!</h1>
-    <p>Click the button below to generate a random Pokémon story with 3 paragraphs!</p>
+    <p>Click the button below to generate a random fan-made Pokémon story with 3 paragraphs!</p>
 
     <div class="story-container" id="storyContainer">
         <p id="storyText">Your Pokémon story will appear here...</p>
@@ -56,32 +56,41 @@
     </div>
 
     <script>
-        const pokemonList = ["Pikachu", "Charmander", "Bulbasaur", "Squirtle", "Eevee", "Jigglypuff", "Snorlax", "Meowth"];
-        const locations = ["Pallet Town", "Viridian Forest", "Cinnabar Island", "Cerulean City", "Mt. Moon", "Lavender Town"];
+        const pokemonList = [
+            "Fluffernox", "Pyroscorch", "Aquashade", "Virex", "Blazebloom", "Aqualis", "Thundercawl", "Lunaryx"
+        ];
+
+        const locations = [
+            "Windsong Village", "Nebulon Town", "Frostspire Peaks", "Glimmerwood Forest", "Lumen City", "Eclipse Canyon"
+        ];
+
         const events = [
-            "found a mysterious item on the ground.",
-            "encountered a wild Pokémon that needed help.",
-            "competed in a tough battle with a Gym Leader.",
-            "got lost in the woods and met a new friend.",
-            "discovered a secret cave with rare Pokémon inside.",
-            "rescued a friend from Team Rocket's trap.",
-            "took part in a Pokémon contest and won a ribbon.",
-            "befriended a legendary Pokémon during an adventure."
+            "discovered a glowing stone in the depths of a dark forest.",
+            "encountered a rare Pokémon that only appeared once every hundred years.",
+            "competed in a legendary tournament held in the heart of a volcano.",
+            "found an ancient map leading to an uncharted island.",
+            "battled against a rival trainer in a grand city arena.",
+            "rescued a Pokémon trapped in a cave filled with dangerous creatures."
         ];
-        const companions = ["Ash", "Misty", "Brock", "Gary", "Professor Oak", "Team Rocket", "Clemont"];
+
+        const companions = [
+            "Raven", "Zara", "Finn", "Kai", "Elysia", "Orin", "Lucius", "Mira"
+        ];
+
         const challenges = [
-            "a fierce storm that made it hard to see anything.",
-            "a tough wild Pokémon that refused to be caught.",
-            "an ambush by Team Rocket, who tried to steal their Pokémon.",
-            "a trap set by a rival trainer who wanted to take their Pokémon.",
-            "a mountain that was difficult to climb without the right tools."
+            "a massive glitching rift that broke the region, causing them to nearly die.",
+            "a shadowy figure who kept sabotaging their attempts to reach the next dimension.",
+            "a mysterious Pokémon who challenged them to a battle without warning.",
+            "a forest filled with illusions that made it hard to find the right way.",
+            "a Glitch World that was nearly impossible to navigate due to a Glitchstorm."
         ];
+
         const resolutions = [
-            "managed to escape with the help of a clever plan.",
-            "defeated the enemy and returned victorious.",
-            "found an unexpected ally who helped solve the problem.",
-            "used a powerful attack to defeat the wild Pokémon.",
-            "found the treasure and uncovered a hidden secret about the region."
+            "defeated the glowing Pokémon using an ultimate move named Glitch Blast they learned from an old friend.",
+            "used their Pokémon's hidden Glitch Power to overcome the Legendary and capture it in a Master Ball.",
+            "defeated the mysterious Pokémon in an intense battle and earned its trust.",
+            "found the right path by deciphering an old riddle left behind by the GameGlitcher Kids.",
+            "carefully navigated the dangerous Glitch World, reaching the next dimension safely."
         ];
 
         function generatePokemonStory() {
@@ -97,14 +106,14 @@
             // Build the story with 3 paragraphs
             const story = `
                 <p><strong>Paragraph 1:</strong> One day, ${pokemon} was traveling through ${location} when they ${event1}. 
-                As they explored, they discovered that something unusual was happening. While they were examining the situation, 
-                ${companion} showed up to offer assistance, and together they set out to solve the mystery of the strange event.</p>
+                Along the way, they met ${companion}, who was also on an adventure of their own. Together, they decided to investigate 
+                a strange occurrence happening near the edge of the forest.</p>
                 
-                <p><strong>Paragraph 2:</strong> As they ventured deeper into the area, ${pokemon} and ${companion} encountered a challenge: ${challenge}. 
-                The situation seemed hopeless, but ${pokemon} was determined to overcome the obstacle. They realized that they had to work together to face the challenge head-on.</p>
+                <p><strong>Paragraph 2:</strong> As they delved deeper into the mystery, ${pokemon} and ${companion} faced a tough challenge: 
+                ${challenge}. Despite the difficulty, they knew that they had to persevere in order to succeed.</p>
                 
-                <p><strong>Paragraph 3:</strong> In the end, with a lot of teamwork and bravery, ${pokemon} and ${companion} ${resolution}. 
-                They celebrated their victory and shared stories of their adventure, knowing that this was a journey they would never forget.</p>
+                <p><strong>Paragraph 3:</strong> In the end, ${pokemon} and ${companion} ${resolution}. 
+                With their newfound strength, they set off on a new adventure, knowing that this was just the beginning of their journey.</p>
             `;
             
             // Display the story
