@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspirational Sayings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 50px;
+        }
+        .quote-box {
+            background-color: #fff;
+            border: 2px solid #dcdcdc;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.2em;
+            color: #333;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Inspirational Sayings</h1>
+    <div class="quote-box" id="quote-box">
+        <!-- Inspirational quote will appear here -->
+        "The only way to do great work is to love what you do."
+    </div>
+    <button onclick="newQuote()">Get New Quote</button>
+
+    <script>
+        // List of inspirational quotes
+        const quotes = [
+            "The only way to do great work is to love what you do.",
+            "Success is not the key to happiness. Happiness is the key to success.",
+            "Believe in yourself and all that you are. Know that there is something inside you that is greater than any obstacle.",
+            "The future belongs to those who believe in the beauty of their dreams.",
+            "It does not matter how slowly you go as long as you do not stop.",
+            "Hardships often prepare ordinary people for an extraordinary destiny.",
+            "Success is not final, failure is not fatal: It is the courage to continue that counts.",
+            "What you get by achieving your goals is not as important as what you become by achieving your goals.",
+            "Do what you can with all you have, wherever you are.",
+            "Success is walking from failure to failure with no loss of enthusiasm."
+        ];
+
+        // Function to generate a new random quote
+        function newQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            document.getElementById('quote-box').textContent = quotes[randomIndex];
+        }
+    </script>
+
+</body>
+</html>
