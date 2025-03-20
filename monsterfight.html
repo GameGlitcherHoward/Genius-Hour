@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monster Fight Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 50px;
+        }
+        .game-container {
+            border: 2px solid #333;
+            padding: 20px;
+            background-color: #fff;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .status {
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .level-up {
+            font-weight: bold;
+            color: #ff5722;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Monster Fight Game</h1>
+        <div class="status">
+            <p>Player Health: <span id="playerHealth">100</span></p>
+            <p>Player Attack: <span id="playerAttack">20</span></p>
+            <p>Level: <span id="playerLevel">1</span></p>
+            <p>Monster Health: <span id="monsterHealth">50</span></p>
+            <p>Monster Attack: <span id="monsterAttack">10</span></p>
+        </div>
+        <button class="btn" id="attackBtn">Attack Monster</button>
+        <div id="fightResult"></div>
+        <p class="level-up" id="levelUpMessage"></p>
+    </div>
+
+    <script>
+        // Game variables
+        let playerHealth = 100;
+        let playerAttack = 20;
+        let playerLevel = 1;
+        let monsterHealth = 50;
+        let monsterAttack = 10;
+
+        // Update the UI
+        function updateUI() {
+            document.getElementById('playerHealth').innerText = playerHealth;
+            document.getElementById('playerAttack').innerText = playerAttack;
+            document.getElementById('playerLevel').innerText = playerLevel;
+            document.getElementById('monsterHealth').innerText = monsterHealth;
+            document.getElementById('monsterAttack').innerText = monsterAttack;
+            document.getElementById('levelUpMessage').innerText = '';
+        }
+
+        // Attack function
+        function attackMonster() {
+            // Player attacks the monster
+            monsterHealth -= playerAttack;
+            if (monsterHealth <= 0) {
+                monsterHealth = 0;
+                // Level up
+                playerLevel++;
+                playerAttack += 5;  // Increase player's attack power
+                playerHealth += 10; // Increase player's health
+                document.getElementById('levelUpMessage').innerText = `You leveled up! Now you're level ${playerLevel}!`;
+                resetMonster();
+            }
+            
+            // Monster attacks back if still alive
+            if (monsterHealth > 0) {
+                playerHealth -= monsterAttack;
+            }
+            
+            if (playerHealth <= 0) {
+                playerHealth = 0;
+                alert("Game Over! You were defeated.");
+                resetGame();
+            }
+
+            updateUI();
+        }
+
+        // Reset monster after it's defeated
+        function resetMonster() {
+            monsterHealth = 50 + (playerLevel - 1) * 10; // Increase monster's health with each level
+            monsterAttack = 10 + (playerLevel - 1) * 2;  // Increase monster's attack with each level
+        }
+
+        // Reset game
+        function resetGame() {
+            playerHealth = 100;
+            playerAttack = 20;
+            playerLevel = 1;
+            monsterHealth = 50;
+            monsterAttack = 10;
+            updateUI();
+        }
+
+        // Event listener for attack button
+        document.getElementById('attackBtn').addEventListener('click', attackMonster);
+
+        // Initialize the game UI
+        updateUI();
+    </script>
+</body>
+</html>
