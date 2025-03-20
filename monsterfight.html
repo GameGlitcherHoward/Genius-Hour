@@ -45,12 +45,24 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+        .health-bar {
+            width: 200px;
+            height: 20px;
+            border: 2px solid #000;
+            background-color: #ddd;
+            position: absolute;
+            top: 40px;
+            left: 10px;
+        }
+        .health-fill {
+            height: 100%;
+            background-color: #ff0000;
+        }
     </style>
 </head>
 <body>
     <div id="gameInfo">
-        <p>Level: <span id="playerLevel">1</span> | Health: <span id="playerHealth">100</span></p>
-        <p>Currency: <span id="currency">0</span></p>
+        <p>Level: <span id="playerLevel">1</span> | Currency: <span id="currency">0</span></p>
         <p>Press WASD to move. Click to attack monsters.</p>
     </div>
 
@@ -58,6 +70,10 @@
         <h3>Buy Pets</h3>
         <button id="buyPetBtn" disabled>Buy Pet (100 currency)</button>
         <p>Your Pet: <span id="petStatus">None</span></p>
+    </div>
+
+    <div class="health-bar">
+        <div class="health-fill" id="healthFill" style="width: 100%;"></div>
     </div>
 
     <canvas id="gameCanvas" width="800" height="600"></canvas>
@@ -118,8 +134,17 @@
                 ctx.fillStyle = monster.color;
                 ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
             });
+
+            // Update health bar
+            updateHealthBar();
         }
-        
+
+        // Update the health bar
+        function updateHealthBar() {
+            let healthPercentage = (player.health / 100) * 100;
+            document.getElementById('healthFill').style.width = healthPercentage + '%';
+        }
+
         // Handle player movement
         function movePlayer() {
             document.addEventListener('keydown', (e) => {
