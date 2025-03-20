@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monster Fight Adventure</title>
+    <title>Monster Fight Adventure - With Pets</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,13 +24,42 @@
             color: white;
             font-size: 18px;
         }
+        #store {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            color: white;
+            font-size: 18px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div id="gameInfo">
         <p>Level: <span id="playerLevel">1</span> | Health: <span id="playerHealth">100</span></p>
+        <p>Currency: <span id="currency">0</span></p>
         <p>Press WASD to move. Click to attack monsters.</p>
     </div>
+
+    <div id="store">
+        <h3>Buy Pets</h3>
+        <button id="buyPetBtn" disabled>Buy Pet (100 currency)</button>
+        <p>Your Pet: <span id="petStatus">None</span></p>
+    </div>
+
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     
     <script>
@@ -47,7 +76,10 @@
             health: 100,
             attack: 10,
             level: 1,
-            color: 'blue'
+            currency: 0,
+            color: 'blue',
+            moveDirection: { x: 0, y: 0 },
+            pet: null
         };
         
         let monsters = [];
@@ -75,6 +107,12 @@
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
             
+            // Draw pet (if any)
+            if (player.pet) {
+                ctx.fillStyle = player.pet.color;
+                ctx.fillRect(player.pet.x, player.pet.y, player.pet.width, player.pet.height);
+            }
+            
             // Draw monsters
             monsters.forEach(monster => {
                 ctx.fillStyle = monster.color;
@@ -87,15 +125,30 @@
             document.addEventListener('keydown', (e) => {
                 if (gameOver) return;
                 if (e.key === 'w' || e.key === 'ArrowUp') {
-                    player.y -= player.speed;
+                    player.moveDirection.y = -player.speed;
                 } else if (e.key === 's' || e.key === 'ArrowDown') {
-                    player.y += player.speed;
+                    player.moveDirection.y = player.speed;
                 } else if (e.key === 'a' || e.key === 'ArrowLeft') {
-                    player.x -= player.speed;
+                    player.moveDirection.x = -player.speed;
                 } else if (e.key === 'd' || e.key === 'ArrowRight') {
-                    player.x += player.speed;
+                    player.moveDirection.x = player.speed;
                 }
             });
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'w' || e.key === 's') {
+                    player.moveDirection.y = 0;
+                }
+                if (e.key === 'a' || e.key === 'd') {
+                    player.moveDirection.x = 0;
+                }
+            });
+        }
+
+        // Update player position
+        function updatePlayerPosition() {
+            player.x += player.moveDirection.x;
+            player.y += player.moveDirection.y;
         }
         
         // Check collision with monsters
@@ -119,8 +172,9 @@
                 // Monster defeated
                 monsters.splice(monsters.indexOf(monster), 1);
                 player.level++;
+                player.currency += 50;
                 document.getElementById('playerLevel').textContent = player.level;
-                document.getElementById('playerHealth').textContent = player.health;
+                document.getElementById('currency').textContent = player.currency;
                 // Create a new monster after defeat
                 createMonster();
             } else {
@@ -133,11 +187,63 @@
                 document.getElementById('playerHealth').textContent = player.health;
             }
         }
-        
+
+        // Pet helper
+        function summonPet() {
+            if (player.pet) {
+                // Pet attacks monster
+                monsters.forEach(monster => {
+                    if (player.pet && player.pet.x < monster.x + monster.width &&
+                        player.pet.x + player.pet.width > monster.x &&
+                        player.pet.y < monster.y + monster.height &&
+                        player.pet.y + player.pet.height > monster.y) {
+                            monster.health -= player.pet.attack;
+                            if (monster.health <= 0) {
+                                monsters.splice(monsters.indexOf(monster), 1);
+                                player.currency += 50;
+                                createMonster();
+                            }
+                        }
+                });
+            }
+        }
+
+        // Pet purchase logic
+        document.getElementById('buyPetBtn').addEventListener('click', () => {
+            if (player.currency >= 100) {
+                player.currency -= 100;
+                document.getElementById('currency').textContent = player.currency;
+                player.pet = {
+                    x: player.x + 40,
+                    y: player.y,
+                    width: 32,
+                    height: 32,
+                    attack: 5,
+                    color: 'green'
+                };
+                document.getElementById('petStatus').textContent = "Pet Active!";
+                document.getElementById('buyPetBtn').disabled = true;
+            }
+        });
+
+        // Health regeneration (10 health per second)
+        function regenerateHealth() {
+            if (player.health < 100) { // Prevent health from going above max
+                player.health += 10;
+                if (player.health > 100) player.health = 100;
+                document.getElementById('playerHealth').textContent = player.health;
+            }
+        }
+
+        // Start health regeneration every second
+        setInterval(regenerateHealth, 1000);
+
         // Game loop
         function gameLoop() {
             if (gameOver) return;
             
+            updatePlayerPosition();
+            summonPet();
             draw();
             checkCollisions();
             requestAnimationFrame(gameLoop);
