@@ -110,11 +110,12 @@
                 height: 32,
                 health: 50 + (player.level - 1) * 20,
                 attack: 5 + (player.level - 1) * 2,
-                color: 'red'
+                color: 'red',
+                faceColor: 'yellow'
             };
             monsters.push(monster);
         }
-        
+
         // Draw the player and monsters
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -133,6 +134,15 @@
             monsters.forEach(monster => {
                 ctx.fillStyle = monster.color;
                 ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
+                
+                // Draw monster face
+                ctx.fillStyle = monster.faceColor;
+                ctx.beginPath();
+                ctx.arc(monster.x + monster.width / 2, monster.y + monster.height / 4, 5, 0, Math.PI * 2);
+                ctx.fill();  // Eyes
+                ctx.beginPath();
+                ctx.arc(monster.x + monster.width / 2, monster.y + 3 * monster.height / 4, 7, 0, Math.PI);
+                ctx.fill();  // Mouth
             });
 
             // Update health bar
