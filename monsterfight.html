@@ -3,125 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monster Fight Game</title>
+    <title>Monster Fight Adventure</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f5f5f5;
-            padding: 50px;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            overflow: hidden;
         }
-        .game-container {
-            border: 2px solid #333;
-            padding: 20px;
-            background-color: #fff;
-            display: inline-block;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        canvas {
+            display: block;
+            background-color: #87CEEB;
+            margin: auto;
         }
-        .status {
-            margin-bottom: 20px;
-        }
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
+        #gameInfo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
             color: white;
-            border: none;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .level-up {
-            font-weight: bold;
-            color: #ff5722;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Monster Fight Game</h1>
-        <div class="status">
-            <p>Player Health: <span id="playerHealth">100</span></p>
-            <p>Player Attack: <span id="playerAttack">20</span></p>
-            <p>Level: <span id="playerLevel">1</span></p>
-            <p>Monster Health: <span id="monsterHealth">50</span></p>
-            <p>Monster Attack: <span id="monsterAttack">10</span></p>
-        </div>
-        <button class="btn" id="attackBtn">Attack Monster</button>
-        <div id="fightResult"></div>
-        <p class="level-up" id="levelUpMessage"></p>
+    <div id="gameInfo">
+        <p>Level: <span id="playerLevel">1</span> | Health: <span id="playerHealth">100</span></p>
+        <p>Press WASD to move. Click to attack monsters.</p>
     </div>
-
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
     <script>
-        // Game variables
-        let playerHealth = 100;
-        let playerAttack = 20;
-        let playerLevel = 1;
-        let monsterHealth = 50;
-        let monsterAttack = 10;
-
-        // Update the UI
-        function updateUI() {
-            document.getElementById('playerHealth').innerText = playerHealth;
-            document.getElementById('playerAttack').innerText = playerAttack;
-            document.getElementById('playerLevel').innerText = playerLevel;
-            document.getElementById('monsterHealth').innerText = monsterHealth;
-            document.getElementById('monsterAttack').innerText = monsterAttack;
-            document.getElementById('levelUpMessage').innerText = '';
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const tileSize = 32; // Size of the grid tile
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            width: 32,
+            height: 32,
+            speed: 5,
+            health: 100,
+            attack: 10,
+            level: 1,
+            color: 'blue'
+        };
+        
+        let monsters = [];
+        let gameOver = false;
+        
+        // Create a monster
+        function createMonster() {
+            let monster = {
+                x: Math.random() * (canvas.width - 64),
+                y: Math.random() * (canvas.height - 64),
+                width: 32,
+                height: 32,
+                health: 50 + (player.level - 1) * 20,
+                attack: 5 + (player.level - 1) * 2,
+                color: 'red'
+            };
+            monsters.push(monster);
         }
-
-        // Attack function
-        function attackMonster() {
-            // Player attacks the monster
-            monsterHealth -= playerAttack;
-            if (monsterHealth <= 0) {
-                monsterHealth = 0;
-                // Level up
-                playerLevel++;
-                playerAttack += 5;  // Increase player's attack power
-                playerHealth += 10; // Increase player's health
-                document.getElementById('levelUpMessage').innerText = `You leveled up! Now you're level ${playerLevel}!`;
-                resetMonster();
-            }
+        
+        // Draw the player and monsters
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Monster attacks back if still alive
-            if (monsterHealth > 0) {
-                playerHealth -= monsterAttack;
-            }
+            // Draw player
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
             
-            if (playerHealth <= 0) {
-                playerHealth = 0;
-                alert("Game Over! You were defeated.");
-                resetGame();
+            // Draw monsters
+            monsters.forEach(monster => {
+                ctx.fillStyle = monster.color;
+                ctx.fillRect(monster.x, monster.y, monster.width, monster.height);
+            });
+        }
+        
+        // Handle player movement
+        function movePlayer() {
+            document.addEventListener('keydown', (e) => {
+                if (gameOver) return;
+                if (e.key === 'w' || e.key === 'ArrowUp') {
+                    player.y -= player.speed;
+                } else if (e.key === 's' || e.key === 'ArrowDown') {
+                    player.y += player.speed;
+                } else if (e.key === 'a' || e.key === 'ArrowLeft') {
+                    player.x -= player.speed;
+                } else if (e.key === 'd' || e.key === 'ArrowRight') {
+                    player.x += player.speed;
+                }
+            });
+        }
+        
+        // Check collision with monsters
+        function checkCollisions() {
+            monsters.forEach(monster => {
+                if (player.x < monster.x + monster.width &&
+                    player.x + player.width > monster.x &&
+                    player.y < monster.y + monster.height &&
+                    player.y + player.height > monster.y) {
+                        // Player attacks monster
+                        attackMonster(monster);
+                }
+            });
+        }
+        
+        // Handle attacking monsters
+        function attackMonster(monster) {
+            // Player attacks monster
+            monster.health -= player.attack;
+            if (monster.health <= 0) {
+                // Monster defeated
+                monsters.splice(monsters.indexOf(monster), 1);
+                player.level++;
+                document.getElementById('playerLevel').textContent = player.level;
+                document.getElementById('playerHealth').textContent = player.health;
+                // Create a new monster after defeat
+                createMonster();
+            } else {
+                // Monster attacks player
+                player.health -= monster.attack;
+                if (player.health <= 0) {
+                    gameOver = true;
+                    alert("Game Over! You were defeated.");
+                }
+                document.getElementById('playerHealth').textContent = player.health;
             }
-
-            updateUI();
+        }
+        
+        // Game loop
+        function gameLoop() {
+            if (gameOver) return;
+            
+            draw();
+            checkCollisions();
+            requestAnimationFrame(gameLoop);
         }
 
-        // Reset monster after it's defeated
-        function resetMonster() {
-            monsterHealth = 50 + (playerLevel - 1) * 10; // Increase monster's health with each level
-            monsterAttack = 10 + (playerLevel - 1) * 2;  // Increase monster's attack with each level
+        // Start the game
+        function startGame() {
+            createMonster();
+            movePlayer();
+            gameLoop();
         }
 
-        // Reset game
-        function resetGame() {
-            playerHealth = 100;
-            playerAttack = 20;
-            playerLevel = 1;
-            monsterHealth = 50;
-            monsterAttack = 10;
-            updateUI();
-        }
-
-        // Event listener for attack button
-        document.getElementById('attackBtn').addEventListener('click', attackMonster);
-
-        // Initialize the game UI
-        updateUI();
+        startGame();
     </script>
 </body>
 </html>
