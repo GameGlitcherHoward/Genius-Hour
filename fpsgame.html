@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPS Game with NPCs</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; }
+        canvas { display: block; }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+            color: white;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        let camera, scene, renderer, controls;
+        let bullets = [];
+        let walls = [];
+        let npcs = [];
+        let shooting = false;
+        let playerScore = 0;  // Variable to store player's score
+
+        // Setup scene and camera
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Set up player (camera)
+            camera.position.y = 1.6; // Eye level
+
+            // Add floor
+            let floorGeometry = new THREE.PlaneGeometry(1000, 1000);
+            let floorMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, side: THREE.DoubleSide });
+            let floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            // Create walls
+            createWall(5, 0, -10);
+            createWall(-10, 1, -15);
+
+            // Create NPCs
+            createNPC(5, 1, -5);
+            createNPC(-10, 1, -20);
+
+            // Add a simple light source
+            let light = new THREE.PointLight(0xffffff, 1);
+            light.position.set(0, 10, 0);
+            scene.add(light);
+
+            // Start rendering
+            animate();
+        }
+
+        // Create a wall object
+        function createWall(x, y, z) {
+            let geometry = new THREE.BoxGeometry(5, 5, 5);
+            let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            let wall = new THREE.Mesh(geometry, material);
+            wall.position.set(x, y, z);
+            walls.push(wall);
+            scene.add(wall);
+        }
+
+        // Create NPCs that move randomly
+        function createNPC(x, y, z) {
+            let geometry = new THREE.CylinderGeometry(0.5, 0.5, 2);
+            let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            let npc = new THREE.Mesh(geometry, material);
+            npc.position.set(x, y, z);
+            npcs.push({ npc, direction: new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize() });
+            scene.add(npc);
+        }
+
+        // Event listener for keyboard inputs
+        let keys = {};
+        window.addEventListener('keydown', (event) => {
+            keys[event.key] = true;
+        });
+        window.addEventListener('keyup', (event) => {
+            keys[event.key] = false;
+        });
+
+        // Move the camera (player) based on WASD keys
+        function movePlayer() {
+            let speed = 0.1;
+            if (keys['w']) camera.position.z -= speed;
+            if (keys['s']) camera.position.z += speed;
+            if (keys['a']) camera.position.x -= speed;
+            if (keys['d']) camera.position.x += speed;
+        }
+
+        // Shoot bullet
+        function shootBullet() {
+            if (!shooting) {
+                shooting = true;
+
+                let bullet = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.1, 16, 16),
+                    new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+                );
+                bullet.position.set(camera.position.x, camera.position.y, camera.position.z);
+
+                let direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+                direction.multiplyScalar(0.5);
+
+                bullets.push({ bullet, direction });
+                scene.add(bullet);
+
+                setTimeout(() => shooting = false, 200); // Cooldown for shooting
+            }
+        }
+
+        // Update bullets and check collisions with NPCs
+        function updateBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.bullet.position.add(bullet.direction);
+                // Check if bullet hits wall
+                walls.forEach((wall) => {
+                    if (bullet.bullet.position.distanceTo(wall.position) < 2) {
+                        scene.remove(bullet.bullet);  // Remove bullet when it hits wall
+                        bullets.splice(index, 1); // Remove bullet from array
+                    }
+                });
+                
+                // Check if bullet hits NPC
+                npcs.forEach((npcData, npcIndex) => {
+                    if (bullet.bullet.position.distanceTo(npcData.npc.position) < 2) {
+                        scene.remove(npcData.npc);  // Remove NPC when hit by bullet
+                        scene.remove(bullet.bullet); // Remove bullet
+                        bullets.splice(index, 1); // Remove bullet from array
+                        npcs.splice(npcIndex, 1);  // Remove NPC from array
+                        playerScore += 1; // Increment score by 1 when NPC is shot
+                        updateScoreDisplay(); // Update score on screen
+                    }
+                });
+            });
+        }
+
+        // Move NPCs randomly
+        function moveNPCs() {
+            npcs.forEach(npcData => {
+                npcData.npc.position.add(npcData.direction.clone().multiplyScalar(0.05));
+                // Add random small direction changes to simulate random movement
+                if (Math.random() < 0.01) {
+                    npcData.direction.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+                }
+            });
+        }
+
+        // Add mouse control for looking around
+        function addMouseControl() {
+            let mouseX = 0;
+            let mouseY = 0;
+            let sensitivity = 0.002;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                camera.rotation.y = mouseX * Math.PI / 2;
+                camera.rotation.x = mouseY * Math.PI / 2;
+            });
+        }
+
+        // Update the score display on the screen
+        function updateScoreDisplay() {
+            const scoreElement = document.getElementById('score');
+            scoreElement.textContent = `Score: ${playerScore}`;
+        }
+
+        // Update the game loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            movePlayer();
+            moveNPCs();
+            updateBullets();
+
+            if (keys[' ']) shootBullet();
+
+            renderer.render(scene, camera);
+        }
+
+        // Initialize the game
+        init();
+        addMouseControl();
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
