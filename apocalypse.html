@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Defend Your Base</title>
+    <title>Defend Your Base - Upgraded</title>
     <style>
         body {
             margin: 0;
@@ -13,13 +13,20 @@
         canvas {
             display: block;
         }
-        #score {
+        #score, #level, #upgrade {
             position: absolute;
             top: 10px;
             left: 10px;
             color: white;
             font-size: 20px;
             z-index: 10;
+            margin-bottom: 5px;
+        }
+        #level {
+            top: 40px;
+        }
+        #upgrade {
+            top: 70px;
         }
         #game-over {
             position: absolute;
@@ -35,6 +42,8 @@
 </head>
 <body>
     <div id="score">Score: 0</div>
+    <div id="level">Level: 1</div>
+    <div id="upgrade">AI Helpers: 0 | Next Upgrade at 100 Points</div>
     <div id="game-over">GAME OVER<br>Press F5 to Restart</div>
     <canvas id="gameCanvas"></canvas>
     <script>
@@ -47,7 +56,9 @@
         const player = { x: canvas.width / 2, y: canvas.height - 100, radius: 20 };
         let monsters = [];
         let bullets = [];
+        let aiHelpers = [];
         let score = 0;
+        let level = 1;
         let gameOver = false;
 
         function drawBase() {
@@ -90,13 +101,17 @@
             const x = Math.random() * canvas.width;
             const y = -50;
             const radius = 30;
-            const speed = Math.random() * 2 + 1;
+            const speed = Math.random() * 1 + 1 + level * 0.2; // Monsters get faster with level
             monsters.push({ x, y, radius, speed });
         }
 
         function drawMonsters() {
             monsters.forEach((monster, index) => {
-                monster.y += monster.speed;
+                // Move monster toward the base
+                const angle = Math.atan2(base.y - monster.y, base.x - monster.x);
+                monster.x += Math.cos(angle) * monster.speed;
+                monster.y += Math.sin(angle) * monster.speed;
+
                 ctx.beginPath();
                 ctx.arc(monster.x, monster.y, monster.radius, 0, Math.PI * 2);
                 ctx.fillStyle = "purple";
@@ -118,12 +133,39 @@
                         bullets.splice(bulletIndex, 1);
                         score += 10;
                         document.getElementById("score").innerText = `Score: ${score}`;
+
+                        // Level up
+                        if (score % 100 === 0) {
+                            level++;
+                            document.getElementById("level").innerText = `Level: ${level}`;
+                        }
+
+                        // AI Helper upgrade
+                        if (score % 100 === 0) {
+                            aiHelpers.push({ x: Math.random() * canvas.width, y: canvas.height - 150 });
+                            document.getElementById("upgrade").innerText = `AI Helpers: ${aiHelpers.length} | Next Upgrade at ${score + 100} Points`;
+                        }
                     }
                 });
 
                 // Remove monsters that go off-screen
                 if (monster.y > canvas.height) {
                     monsters.splice(index, 1);
+                }
+            });
+        }
+
+        function drawAIHelpers() {
+            aiHelpers.forEach((ai, index) => {
+                ctx.beginPath();
+                ctx.arc(ai.x, ai.y, 15, 0, Math.PI * 2);
+                ctx.fillStyle = "orange";
+                ctx.fill();
+                ctx.closePath();
+
+                // AI automatically shoots bullets
+                if (Math.random() < 0.02) {
+                    bullets.push({ x: ai.x, y: ai.y, radius: 5, speed: 5 });
                 }
             });
         }
@@ -137,6 +179,7 @@
             drawPlayer();
             drawBullets();
             drawMonsters();
+            drawAIHelpers();
 
             requestAnimationFrame(gameLoop);
         }
