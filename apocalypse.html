@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defend Your Base</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 20px;
+            z-index: 10;
+        }
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 40px;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div id="game-over">GAME OVER<br>Press F5 to Restart</div>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const base = { x: canvas.width / 2, y: canvas.height - 50, radius: 50 };
+        const player = { x: canvas.width / 2, y: canvas.height - 100, radius: 20 };
+        let monsters = [];
+        let bullets = [];
+        let score = 0;
+        let gameOver = false;
+
+        function drawBase() {
+            ctx.beginPath();
+            ctx.arc(base.x, base.y, base.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function shootBullet(x, y) {
+            bullets.push({ x, y, radius: 5, speed: 5 });
+        }
+
+        function drawBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "red";
+                ctx.fill();
+                ctx.closePath();
+
+                // Remove bullets that go off-screen
+                if (bullet.y < 0) {
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        function spawnMonster() {
+            const x = Math.random() * canvas.width;
+            const y = -50;
+            const radius = 30;
+            const speed = Math.random() * 2 + 1;
+            monsters.push({ x, y, radius, speed });
+        }
+
+        function drawMonsters() {
+            monsters.forEach((monster, index) => {
+                monster.y += monster.speed;
+                ctx.beginPath();
+                ctx.arc(monster.x, monster.y, monster.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "purple";
+                ctx.fill();
+                ctx.closePath();
+
+                // Check collision with base
+                const distToBase = Math.hypot(monster.x - base.x, monster.y - base.y);
+                if (distToBase < monster.radius + base.radius) {
+                    gameOver = true;
+                    document.getElementById("game-over").style.display = "block";
+                }
+
+                // Check collision with bullets
+                bullets.forEach((bullet, bulletIndex) => {
+                    const distToBullet = Math.hypot(monster.x - bullet.x, monster.y - bullet.y);
+                    if (distToBullet < monster.radius + bullet.radius) {
+                        monsters.splice(index, 1);
+                        bullets.splice(bulletIndex, 1);
+                        score += 10;
+                        document.getElementById("score").innerText = `Score: ${score}`;
+                    }
+                });
+
+                // Remove monsters that go off-screen
+                if (monster.y > canvas.height) {
+                    monsters.splice(index, 1);
+                }
+            });
+        }
+
+        function gameLoop() {
+            if (gameOver) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawBase();
+            drawPlayer();
+            drawBullets();
+            drawMonsters();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Player movement
+        window.addEventListener("mousemove", (e) => {
+            player.x = e.clientX;
+        });
+
+        // Shooting bullets
+        window.addEventListener("mousedown", (e) => {
+            shootBullet(player.x, player.y);
+        });
+
+        // Spawn monsters periodically
+        setInterval(spawnMonster, 1000);
+
+        gameLoop();
+    </script>
+</body>
+</html>
