@@ -1,201 +1,202 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Base Defense Game</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: url('https://via.placeholder.com/800x600.png?text=Background') no-repeat center center fixed;
-      background-size: cover;
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const base = { x: canvas.width / 2, y: canvas.height - 50, health: 5000 };
+  const player = { x: canvas.width / 2, y: canvas.height - 100, speed: 7, laserSpeed: 10, laserColor: "blue", upgradeLevel: 0 };
+  const lasers = [];
+  const monsters = [];
+  const aiHelpers = [];
+  let score = 0;
+  let level = 1;
+  let keys = {};
+
+  // Helper Classes
+  class Monster {
+    constructor(x, y, speed) {
+      this.x = x;
+      this.y = y;
+      this.speed = speed;
+      this.size = 30;
     }
-    canvas {
-      display: block;
+    move() {
+      this.y += this.speed;
     }
-  </style>
-</head>
-<body>
-  <canvas id="gameCanvas"></canvas>
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const base = { x: canvas.width / 2, y: canvas.height - 50, health: 5000 };
-    const player = { x: canvas.width / 2, y: canvas.height - 100, speed: 7, laserSpeed: 10, laserColor: "red", upgradeLevel: 0 };
-    const lasers = [];
-    const monsters = [];
-    const aiHelpers = [];
-    let score = 0;
-    let level = 1;
-    let keys = {};
-
-    // Helper Classes
-    class Monster {
-      constructor(x, y, speed) {
-        this.x = x;
-        this.y = y;
-        this.speed = speed;
-        this.size = 30;
-      }
-      move() {
-        this.y += this.speed;
-      }
-      draw() {
-        ctx.fillStyle = "green";
-        ctx.fillRect(this.x, this.y, this.size, this.size);
-      }
+    draw() {
+      ctx.fillStyle = "green";
+      ctx.fillRect(this.x, this.y, this.size, this.size);
     }
+  }
 
-    class Laser {
-      constructor(x, y, speed, color) {
-        this.x = x;
-        this.y = y;
-        this.speed = speed;
-        this.color = color;
-      }
-      move() {
-        this.y -= this.speed;
-      }
-      draw() {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, 5, 20);
-      }
+  class Laser {
+    constructor(x, y, speed, color, angle = 0) {
+      this.x = x;
+      this.y = y;
+      this.speed = speed;
+      this.color = color;
+      this.angle = angle; // New angle property
     }
-
-    class AIHelper {
-      constructor(x, y) {
-        this.x = x;
-        this.y = y;
-      }
-      shoot() {
-        lasers.push(new Laser(this.x, this.y, player.laserSpeed, player.laserColor));
-      }
-      draw() {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(this.x, this.y, 20, 20);
-      }
+    move() {
+      this.x += Math.cos(this.angle) * this.speed;
+      this.y += Math.sin(this.angle) * this.speed;
     }
-
-    // Key Listeners
-    window.addEventListener("keydown", (e) => (keys[e.key] = true));
-    window.addEventListener("keyup", (e) => (keys[e.key] = false));
-
-    // Game Logic
-    function spawnMonsters() {
-      for (let i = 0; i < level * 5; i++) {
-        const x = Math.random() * (canvas.width - 30);
-        monsters.push(new Monster(x, -30, Math.random() * 2 + 1));
-      }
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, 5, 20);
     }
+  }
 
-    function upgradeWeapon() {
-      player.upgradeLevel++;
-      player.laserSpeed += 2;
-      const colors = ["red", "orange", "yellow", "lime", "cyan", "magenta"];
-      player.laserColor = colors[player.upgradeLevel % colors.length];
-      aiHelpers.push(new AIHelper(Math.random() * canvas.width, canvas.height - 150));
+  class AIHelper {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.lastShot = 0; // Track last shot time
     }
-
-    function update() {
-      // Player Movement
-      if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-      if (keys["ArrowRight"] && player.x < canvas.width - 20) player.x += player.speed;
-
-      // Shooting
-      if (keys[" "] && lasers.length < 10) {
-        lasers.push(new Laser(player.x + 7, player.y, player.laserSpeed, player.laserColor));
-      }
-
-      // Move Lasers
-      lasers.forEach((laser, index) => {
-        laser.move();
-        if (laser.y < 0) lasers.splice(index, 1);
-      });
-
-      // Move Monsters
-      monsters.forEach((monster, index) => {
-        monster.move();
-        if (monster.y > canvas.height) {
-          base.health -= 100;
-          monsters.splice(index, 1);
+    shoot() {
+      const now = Date.now();
+      if (now - this.lastShot > 500) { // 500ms cooldown
+        const nearestMonster = this.findNearestMonster();
+        if (nearestMonster) {
+          const angle = Math.atan2(nearestMonster.y - this.y, nearestMonster.x - this.x);
+          lasers.push(new Laser(this.x, this.y, player.laserSpeed, player.laserColor, angle));
         }
-
-        lasers.forEach((laser, laserIndex) => {
-          if (
-            laser.x < monster.x + monster.size &&
-            laser.x + 5 > monster.x &&
-            laser.y < monster.y + monster.size &&
-            laser.y + 20 > monster.y
-          ) {
-            score += 10;
-            monsters.splice(index, 1);
-            lasers.splice(laserIndex, 1);
-          }
-        });
-      });
-
-      // AI Helpers Shooting
-      aiHelpers.forEach((helper) => {
-        helper.shoot();
-      });
-
-      // Check Level Up
-      if (monsters.length === 0) {
-        level++;
-        upgradeWeapon();
-        spawnMonsters();
+        this.lastShot = now;
       }
     }
+    findNearestMonster() {
+      let nearest = null;
+      let minDistance = Infinity;
+      monsters.forEach((monster) => {
+        const distance = Math.hypot(monster.x - this.x, monster.y - this.y);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = monster;
+        }
+      });
+      return nearest;
+    }
+    draw() {
+      ctx.fillStyle = "blue";
+      ctx.fillRect(this.x, this.y, 20, 20);
+    }
+  }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Key Listeners
+  window.addEventListener("keydown", (e) => (keys[e.key] = true));
+  window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
-      // Draw Base
-      ctx.fillStyle = "gray";
-      ctx.fillRect(base.x - 50, base.y, 100, 20);
+  // Game Logic
+  function spawnMonsters() {
+    for (let i = 0; i < level * 5; i++) {
+      const x = Math.random() * (canvas.width - 30);
+      monsters.push(new Monster(x, -30, Math.random() * 2 + 1));
+    }
+  }
+
+  function upgradeWeapon() {
+    player.upgradeLevel++;
+    player.laserSpeed += 2;
+    const colors = ["red", "orange", "yellow", "lime", "cyan", "magenta"];
+    player.laserColor = colors[player.upgradeLevel % colors.length];
+    aiHelpers.push(new AIHelper(Math.random() * canvas.width, canvas.height - 150));
+  }
+
+  function update() {
+    // Player Movement
+    if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
+    if (keys["ArrowRight"] && player.x < canvas.width - 20) player.x += player.speed;
+
+    // Shooting
+    if (keys[" "] && lasers.length < 10) {
+      lasers.push(new Laser(player.x + 7, player.y, player.laserSpeed, player.laserColor));
+    }
+
+    // Move Lasers
+    lasers.forEach((laser, index) => {
+      laser.move();
+      if (laser.y < 0 || laser.x < 0 || laser.x > canvas.width) lasers.splice(index, 1);
+    });
+
+    // Move Monsters
+    monsters.forEach((monster, index) => {
+      monster.move();
+      if (monster.y > canvas.height) {
+        base.health -= 100;
+        monsters.splice(index, 1);
+      }
+
+      lasers.forEach((laser, laserIndex) => {
+        if (
+          laser.x < monster.x + monster.size &&
+          laser.x + 5 > monster.x &&
+          laser.y < monster.y + monster.size &&
+          laser.y + 20 > monster.y
+        ) {
+          score += 10;
+          monsters.splice(index, 1);
+          lasers.splice(laserIndex, 1);
+        }
+      });
+    });
+
+    // AI Helpers Shooting
+    aiHelpers.forEach((helper) => {
+      helper.shoot();
+    });
+
+    // Check Level Up
+    if (monsters.length === 0) {
+      level++;
+      upgradeWeapon();
+      spawnMonsters();
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Base
+    ctx.fillStyle = "gray";
+    ctx.fillRect(base.x - 50, base.y, 100, 20);
+    ctx.fillStyle = "red";
+    ctx.fillRect(base.x - 50, base.y, (base.health / 5000) * 100, 20);
+
+    // Draw Player
+    ctx.fillStyle = "blue"; // Changed to blue for better visibility
+    ctx.fillRect(player.x, player.y, 20, 20);
+
+    // Draw Lasers
+    lasers.forEach((laser) => laser.draw());
+
+    // Draw Monsters
+    monsters.forEach((monster) => monster.draw());
+
+    // Draw AI Helpers
+    aiHelpers.forEach((helper) => helper.draw());
+
+    // Draw Score and Level
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText(`Score: ${score}`, 10, 30);
+    ctx.fillText(`Level: ${level}`, 10, 60);
+    ctx.fillText(`Base Health: ${base.health}`, 10, 90);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    if (base.health > 0) {
+      requestAnimationFrame(gameLoop);
+    } else {
       ctx.fillStyle = "red";
-      ctx.fillRect(base.x - 50, base.y, (base.health / 5000) * 100, 20);
-
-      // Draw Player
-      ctx.fillStyle = "white";
-      ctx.fillRect(player.x, player.y, 20, 20);
-
-      // Draw Lasers
-      lasers.forEach((laser) => laser.draw());
-
-      // Draw Monsters
-      monsters.forEach((monster) => monster.draw());
-
-      // Draw AI Helpers
-      aiHelpers.forEach((helper) => helper.draw());
-
-      // Draw Score and Level
-      ctx.fillStyle = "white";
-      ctx.font = "20px Arial";
-      ctx.fillText(`Score: ${score}`, 10, 30);
-      ctx.fillText(`Level: ${level}`, 10, 60);
-      ctx.fillText(`Base Health: ${base.health}`, 10, 90);
+      ctx.font = "50px Arial";
+      ctx.fillText("Game Over", canvas.width / 2 - 150, canvas.height / 2);
     }
+  }
 
-    function gameLoop() {
-      update();
-      draw();
-      if (base.health > 0) {
-        requestAnimationFrame(gameLoop);
-      } else {
-        ctx.fillStyle = "red";
-        ctx.font = "50px Arial";
-        ctx.fillText("Game Over", canvas.width / 2 - 150, canvas.height / 2);
-      }
-    }
-
-    // Start Game
-    spawnMonsters();
-    gameLoop();
-  </script>
-</body>
-</html>
+  // Start Game
+  spawnMonsters();
+  gameLoop();
+</script>
