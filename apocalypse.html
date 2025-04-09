@@ -51,16 +51,14 @@
     }
 
     class Laser {
-      constructor(x, y, speed, color, angle = 0) {
+      constructor(x, y, speed, color) {
         this.x = x;
         this.y = y;
         this.speed = speed;
         this.color = color;
-        this.angle = angle; // New angle property
       }
       move() {
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
+        this.y -= this.speed; // Always move up
       }
       draw() {
         ctx.fillStyle = this.color;
@@ -80,7 +78,7 @@
           const nearestMonster = this.findNearestMonster();
           if (nearestMonster) {
             const angle = Math.atan2(nearestMonster.y - this.y, nearestMonster.x - this.x);
-            lasers.push(new Laser(this.x, this.y, player.laserSpeed, player.laserColor, angle));
+            lasers.push(new Laser(this.x, this.y, player.laserSpeed, player.laserColor));
           }
           this.lastShot = now;
         }
@@ -131,6 +129,7 @@
 
       // Shooting
       if (keys[" "] && lasers.length < 10) {
+        // Laser shoots upwards
         lasers.push(new Laser(player.x + 7, player.y, player.laserSpeed, player.laserColor));
       }
 
@@ -185,7 +184,7 @@
       ctx.fillRect(base.x - 50, base.y, (base.health / 5000) * 100, 20);
 
       // Draw Player
-      ctx.fillStyle = "blue"; // Changed to blue for better visibility
+      ctx.fillStyle = "blue"; // Player is blue for visibility
       ctx.fillRect(player.x, player.y, 20, 20);
 
       // Draw Lasers
