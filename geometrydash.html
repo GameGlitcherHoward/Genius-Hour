@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glitch Apocalypse</title>
+  <title>Geometry Dash: Glitch Apocalypse</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
-      background: black;
+      background: linear-gradient(to bottom, #000000, #333333);
       color: white;
     }
     canvas {
@@ -24,81 +24,125 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Player
-    const player = { x: 50, y: canvas.height / 2, size: 20, color: "cyan", velocityY: 0, gravity: 0.8, jumpStrength: 15 };
+    // Game variables
+    const player = {
+      x: 50,
+      y: canvas.height - 150,
+      width: 30,
+      height: 30,
+      color: "cyan",
+      velocityY: 0,
+      jumpStrength: 15,
+      gravity: 0.8,
+      onGround: true,
+    };
 
-    // Obstacles
-    const obstacles = [];
-    let obstacleTimer = 0;
-    const obstacleFrequency = 120; // Frames between obstacles
-    const obstacleSpeed = 5;
-
-    // Game Variables
-    let isRunning = true;
+    const platforms = [];
+    const spikes = [];
+    let scrollSpeed = 5;
     let score = 0;
+    let isRunning = true;
 
-    // Key Listeners
-    window.addEventListener("keydown", (event) => {
-      if (event.key === " " && isRunning) {
-        player.velocityY = -player.jumpStrength;
-      }
-    });
+    // Key handling
+    let keys = {};
+    window.addEventListener("keydown", (e) => (keys[e.key] = true));
+    window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
-    function spawnObstacle() {
-      const height = Math.random() * (canvas.height / 2);
-      const gap = 100; // Gap between top and bottom obstacle
-      obstacles.push({
+    function createPlatform() {
+      const width = Math.random() * 200 + 100;
+      const height = 20;
+      platforms.push({
         x: canvas.width,
-        y: 0,
-        width: 30,
+        y: Math.random() * (canvas.height - 200) + 100,
+        width: width,
         height: height,
-        color: "red",
+        color: "green",
       });
-      obstacles.push({
-        x: canvas.width,
-        y: height + gap,
-        width: 30,
-        height: canvas.height - height - gap,
+    }
+
+    function createSpike(platform) {
+      spikes.push({
+        x: platform.x + Math.random() * (platform.width - 20),
+        y: platform.y - 20,
+        width: 20,
+        height: 20,
         color: "red",
       });
     }
 
     function update() {
-      // Player movement
+      // Player gravity and movement
       player.velocityY += player.gravity;
       player.y += player.velocityY;
 
-      // Check for collision with floor/ceiling
-      if (player.y < 0 || player.y + player.size > canvas.height) {
-        isRunning = false;
+      if (keys[" "] && player.onGround) {
+        player.velocityY = -player.jumpStrength;
+        player.onGround = false;
       }
 
-      // Manage obstacles
-      obstacleTimer++;
-      if (obstacleTimer >= obstacleFrequency) {
-        spawnObstacle();
-        obstacleTimer = 0;
-      }
+      // Platform and spike logic
+      platforms.forEach((platform, index) => {
+        platform.x -= scrollSpeed;
 
-      obstacles.forEach((obstacle, index) => {
-        obstacle.x -= obstacleSpeed;
-
-        // Remove obstacles that are off-screen
-        if (obstacle.x + obstacle.width < 0) {
-          obstacles.splice(index, 1);
-          score++;
+        // Player collision with platforms
+        if (
+          player.x + player.width > platform.x &&
+          player.x < platform.x + platform.width &&
+          player.y + player.height <= platform.y &&
+          player.y + player.height + player.velocityY >= platform.y
+        ) {
+          player.y = platform.y - player.height;
+          player.velocityY = 0;
+          player.onGround = true;
         }
 
-        // Check collision with player
+        // Remove off-screen platforms
+        if (platform.x + platform.width < 0) {
+          platforms.splice(index, 1);
+        }
+      });
+
+      spikes.forEach((spike, index) => {
+        spike.x -= scrollSpeed;
+
+        // Check for collision with spikes
         if (
-          player.x < obstacle.x + obstacle.width &&
-          player.x + player.size > obstacle.x &&
-          player.y < obstacle.y + obstacle.height &&
-          player.y + player.size > obstacle.y
+          player.x < spike.x + spike.width &&
+          player.x + player.width > spike.x &&
+          player.y < spike.y + spike.height &&
+          player.y + player.height > spike.y
         ) {
           isRunning = false;
         }
+
+        // Remove off-screen spikes
+        if (spike.x + spike.width < 0) {
+          spikes.splice(index, 1);
+        }
       });
+
+      // Create new platforms and spikes
+      if (platforms.length < 5 || platforms[platforms.length - 1].x < canvas.width - 300) {
+        const newPlatform = {
+          x: canvas.width,
+          y: Math.random() * (canvas.height - 200) + 100,
+          width: Math.random() * 200 + 100,
+          height: 20,
+          color: "green",
+        };
+        platforms.push(newPlatform);
+        if (Math.random() > 0.5) {
+          createSpike(newPlatform);
+        }
+      }
+
+      // Check if the player falls off screen
+      if (player.y > canvas.height) {
+        isRunning = false;
+      }
+
+      // Increment score
+      score++;
     }
 
     function draw() {
@@ -106,12 +150,23 @@
 
       // Draw player
       ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.size, player.size);
+      ctx.fillRect(player.x, player.y, player.width, player.height);
 
-      // Draw obstacles
-      obstacles.forEach((obstacle) => {
-        ctx.fillStyle = obstacle.color;
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      // Draw platforms
+      platforms.forEach((platform) => {
+        ctx.fillStyle = platform.color;
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+      });
+
+      // Draw spikes
+      spikes.forEach((spike) => {
+        ctx.fillStyle = spike.color;
+        ctx.beginPath();
+        ctx.moveTo(spike.x, spike.y + spike.height);
+        ctx.lineTo(spike.x + spike.width / 2, spike.y);
+        ctx.lineTo(spike.x + spike.width, spike.y + spike.height);
+        ctx.closePath();
+        ctx.fill();
       });
 
       // Draw score
@@ -133,6 +188,14 @@
       }
     }
 
+    // Initialize game
+    platforms.push({
+      x: 0,
+      y: canvas.height - 100,
+      width: canvas.width,
+      height: 20,
+      color: "green",
+    });
     gameLoop();
   </script>
 </body>
