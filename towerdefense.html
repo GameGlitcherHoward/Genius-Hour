@@ -55,9 +55,9 @@
       { name: "Tank", health: 100, speed: 1, color: "darkred" }
     ];
     const towerTypes = [
-      { name: "Basic", damage: 10, range: 100, fireRate: 50, color: "blue" },
-      { name: "Sniper", damage: 30, range: 200, fireRate: 150, color: "green" },
-      { name: "Rapid", damage: 5, range: 80, fireRate: 20, color: "purple" }
+      { name: "Basic", damage: 10, range: 100, fireRate: 50, color: "blue", upgradeCost: 50 },
+      { name: "Sniper", damage: 30, range: 200, fireRate: 150, color: "green", upgradeCost: 100 },
+      { name: "Rapid", damage: 5, range: 80, fireRate: 20, color: "purple", upgradeCost: 75 }
     ];
 
     // Tower class
@@ -70,14 +70,23 @@
         this.fireRate = type.fireRate;
         this.damage = type.damage;
         this.color = type.color;
+        this.upgradeCost = type.upgradeCost;
+        this.level = 1;
         this.lastFired = 0;
       }
 
       draw() {
+        // Change size or color based on level
+        const size = 20 + this.level * 5; // Tower size increases with level
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
         ctx.fill();
+
+        // Draw level indicator
+        ctx.fillStyle = "white";
+        ctx.font = "12px Arial";
+        ctx.fillText(`Lv ${this.level}`, this.x - 10, this.y - 25);
       }
 
       shoot() {
@@ -91,6 +100,22 @@
               break;
             }
           }
+        }
+      }
+
+      upgrade() {
+        if (coins >= this.upgradeCost) {
+          coins -= this.upgradeCost;
+          document.getElementById("coins").textContent = coins;
+
+          // Increase stats
+          this.level++;
+          this.damage += 5; // Increase damage
+          this.range += 20; // Increase range
+          this.fireRate = Math.max(10, this.fireRate - 10); // Decrease fire rate (faster shooting)
+          this.upgradeCost += 50; // Increase cost of next upgrade
+        } else {
+          alert("Not enough coins to upgrade!");
         }
       }
     }
@@ -204,9 +229,24 @@
       }
     }
 
-    // Handle placing towers
+    // Handle placing towers and upgrading
     canvas.addEventListener("click", (e) => {
-      if (coins >= 50) { // Basic towers cost 50 coins
+      let clickedTower = null;
+
+      // Check if a tower was clicked
+      for (const tower of towers) {
+        const distance = Math.hypot(e.offsetX - tower.x, e.offsetY - tower.y);
+        if (distance < 20 + tower.level * 5) {
+          clickedTower = tower;
+          break;
+        }
+      }
+
+      if (clickedTower) {
+        // Upgrade the clicked tower
+        clickedTower.upgrade();
+      } else if (coins >= 50) {
+        // Place a new tower
         const towerType = towerTypes[Math.floor(Math.random() * towerTypes.length)];
         towers.push(new Tower(e.offsetX, e.offsetY, towerType));
         coins -= 50;
