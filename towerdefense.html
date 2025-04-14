@@ -47,7 +47,7 @@
     const enemies = [];
     const bullets = [];
     let enemyTimer = 0;
-    const enemySpawnRate = 30; // Spawn enemies in waves
+    const enemySpawnRate = 30;
     const path = [{ x: 0, y: canvas.height / 2 }, { x: canvas.width - base.width, y: canvas.height / 2 }];
     const monsterTypes = [
       { name: "Basic", health: 50, speed: 2, color: "red" },
@@ -76,7 +76,6 @@
       }
 
       draw() {
-        // Change size or color based on level
         const size = 20 + this.level * 5; // Tower size increases with level
         ctx.fillStyle = this.color;
         ctx.beginPath();
