@@ -3,18 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enhanced Tower Defense</title>
+  <title>Tower Defense Game</title>
   <style>
     body {
       margin: 0;
       overflow: hidden;
       background-color: #222;
     }
-
     canvas {
       display: block;
     }
-
     #gameInfo {
       position: absolute;
       top: 10px;
@@ -46,7 +44,7 @@
     const enemies = [];
     const bullets = [];
     let enemyTimer = 0;
-    const enemySpawnRate = 60; // Spawn an enemy every 60 frames
+    const enemySpawnRate = 30; // Spawn enemies in waves
     const path = [{ x: 0, y: canvas.height / 2 }, { x: canvas.width, y: canvas.height / 2 }];
     const monsterTypes = [
       { name: "Basic", health: 50, speed: 2, color: "red" },
@@ -82,7 +80,6 @@
       shoot() {
         const now = performance.now();
         if (now - this.lastFired > this.fireRate) {
-          // Find the first enemy in range
           for (const enemy of enemies) {
             const distance = Math.hypot(enemy.x - this.x, enemy.y - this.y);
             if (distance <= this.range) {
