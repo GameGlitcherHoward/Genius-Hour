@@ -26,7 +26,8 @@
 <body>
   <div id="gameInfo">
     Coins: <span id="coins">100</span><br>
-    Wave: <span id="wave">1</span>
+    Wave: <span id="wave">1</span><br>
+    Base Health: <span id="baseHealth">100</span>
   </div>
   <canvas id="gameCanvas"></canvas>
 
@@ -40,12 +41,14 @@
     // Game variables
     let coins = 100;
     let wave = 1;
+    let baseHealth = 100;
+    const base = { x: canvas.width - 50, y: canvas.height / 2 - 50, width: 50, height: 100 };
     const towers = [];
     const enemies = [];
     const bullets = [];
     let enemyTimer = 0;
     const enemySpawnRate = 30; // Spawn enemies in waves
-    const path = [{ x: 0, y: canvas.height / 2 }, { x: canvas.width, y: canvas.height / 2 }];
+    const path = [{ x: 0, y: canvas.height / 2 }, { x: canvas.width - base.width, y: canvas.height / 2 }];
     const monsterTypes = [
       { name: "Basic", health: 50, speed: 2, color: "red" },
       { name: "Fast", health: 30, speed: 4, color: "orange" },
@@ -118,6 +121,22 @@
           this.x = target.x;
           this.y = target.y;
           this.pathIndex++;
+
+          // If the enemy reaches the base
+          if (this.pathIndex >= path.length - 1) {
+            baseHealth--;
+            document.getElementById("baseHealth").textContent = baseHealth;
+
+            // Remove the enemy
+            const index = enemies.indexOf(this);
+            if (index > -1) enemies.splice(index, 1);
+
+            // End game if base health reaches 0
+            if (baseHealth <= 0) {
+              alert("Game Over! The base has been destroyed.");
+              window.location.reload();
+            }
+          }
         } else {
           this.x += (dx / distance) * this.speed;
           this.y += (dy / distance) * this.speed;
@@ -198,6 +217,10 @@
     // Game loop
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw base
+      ctx.fillStyle = "gray";
+      ctx.fillRect(base.x, base.y, base.width, base.height);
 
       // Spawn enemies
       enemyTimer++;
