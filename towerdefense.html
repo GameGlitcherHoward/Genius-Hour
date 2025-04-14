@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tower Defense Game</title>
+  <title>Enhanced Tower Defense</title>
   <style>
     body {
       margin: 0;
@@ -26,7 +26,10 @@
   </style>
 </head>
 <body>
-  <div id="gameInfo">Coins: <span id="coins">100</span></div>
+  <div id="gameInfo">
+    Coins: <span id="coins">100</span><br>
+    Wave: <span id="wave">1</span>
+  </div>
   <canvas id="gameCanvas"></canvas>
 
   <script>
@@ -38,25 +41,39 @@
 
     // Game variables
     let coins = 100;
+    let wave = 1;
     const towers = [];
     const enemies = [];
     const bullets = [];
     let enemyTimer = 0;
-    const enemySpawnRate = 100; // Spawn an enemy every 100 frames
-    const path = [{x: 0, y: canvas.height / 2}, {x: canvas.width, y: canvas.height / 2}];
+    const enemySpawnRate = 60; // Spawn an enemy every 60 frames
+    const path = [{ x: 0, y: canvas.height / 2 }, { x: canvas.width, y: canvas.height / 2 }];
+    const monsterTypes = [
+      { name: "Basic", health: 50, speed: 2, color: "red" },
+      { name: "Fast", health: 30, speed: 4, color: "orange" },
+      { name: "Tank", health: 100, speed: 1, color: "darkred" }
+    ];
+    const towerTypes = [
+      { name: "Basic", damage: 10, range: 100, fireRate: 50, color: "blue" },
+      { name: "Sniper", damage: 30, range: 200, fireRate: 150, color: "green" },
+      { name: "Rapid", damage: 5, range: 80, fireRate: 20, color: "purple" }
+    ];
 
     // Tower class
     class Tower {
-      constructor(x, y) {
+      constructor(x, y, type) {
         this.x = x;
         this.y = y;
-        this.range = 100;
-        this.fireRate = 50;
+        this.type = type;
+        this.range = type.range;
+        this.fireRate = type.fireRate;
+        this.damage = type.damage;
+        this.color = type.color;
         this.lastFired = 0;
       }
 
       draw() {
-        ctx.fillStyle = "blue";
+        ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
         ctx.fill();
@@ -69,7 +86,7 @@
           for (const enemy of enemies) {
             const distance = Math.hypot(enemy.x - this.x, enemy.y - this.y);
             if (distance <= this.range) {
-              bullets.push(new Bullet(this.x, this.y, enemy));
+              bullets.push(new Bullet(this.x, this.y, enemy, this.damage));
               this.lastFired = now;
               break;
             }
@@ -80,11 +97,13 @@
 
     // Enemy class
     class Enemy {
-      constructor() {
+      constructor(type) {
         this.x = path[0].x;
         this.y = path[0].y;
-        this.speed = 2;
-        this.health = 50;
+        this.speed = type.speed;
+        this.health = type.health;
+        this.maxHealth = type.health;
+        this.color = type.color;
         this.width = 20;
         this.height = 20;
         this.pathIndex = 0;
@@ -109,17 +128,22 @@
       }
 
       draw() {
-        ctx.fillStyle = "red";
+        ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        // Draw health bar
+        ctx.fillStyle = "green";
+        ctx.fillRect(this.x, this.y - 5, (this.health / this.maxHealth) * this.width, 3);
       }
     }
 
     // Bullet class
     class Bullet {
-      constructor(x, y, target) {
+      constructor(x, y, target, damage) {
         this.x = x;
         this.y = y;
         this.target = target;
+        this.damage = damage;
         this.speed = 5;
       }
 
@@ -131,7 +155,7 @@
         if (distance < this.speed) {
           this.x = this.target.x;
           this.y = this.target.y;
-          this.target.health -= 10;
+          this.target.health -= this.damage;
 
           // Remove bullet if target is dead
           if (this.target.health <= 0) {
@@ -156,10 +180,19 @@
       }
     }
 
+    // Spawn enemies for the current wave
+    function spawnWave() {
+      for (let i = 0; i < wave * 5; i++) {
+        const type = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
+        enemies.push(new Enemy(type));
+      }
+    }
+
     // Handle placing towers
     canvas.addEventListener("click", (e) => {
-      if (coins >= 50) { // Towers cost 50 coins
-        towers.push(new Tower(e.offsetX, e.offsetY));
+      if (coins >= 50) { // Basic towers cost 50 coins
+        const towerType = towerTypes[Math.floor(Math.random() * towerTypes.length)];
+        towers.push(new Tower(e.offsetX, e.offsetY, towerType));
         coins -= 50;
         document.getElementById("coins").textContent = coins;
       }
@@ -172,7 +205,11 @@
       // Spawn enemies
       enemyTimer++;
       if (enemyTimer >= enemySpawnRate) {
-        enemies.push(new Enemy());
+        if (enemies.length === 0) {
+          wave++;
+          document.getElementById("wave").textContent = wave;
+          spawnWave();
+        }
         enemyTimer = 0;
       }
 
@@ -197,6 +234,7 @@
       requestAnimationFrame(gameLoop);
     }
 
+    spawnWave(); // Start the first wave
     gameLoop();
   </script>
 </body>
