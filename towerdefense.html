@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tower Defense Game</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #222;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #gameInfo {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameInfo">Coins: <span id="coins">100</span></div>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    // Canvas setup
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Game variables
+    let coins = 100;
+    const towers = [];
+    const enemies = [];
+    const bullets = [];
+    let enemyTimer = 0;
+    const enemySpawnRate = 100; // Spawn an enemy every 100 frames
+    const path = [{x: 0, y: canvas.height / 2}, {x: canvas.width, y: canvas.height / 2}];
+
+    // Tower class
+    class Tower {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.range = 100;
+        this.fireRate = 50;
+        this.lastFired = 0;
+      }
+
+      draw() {
+        ctx.fillStyle = "blue";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      shoot() {
+        const now = performance.now();
+        if (now - this.lastFired > this.fireRate) {
+          // Find the first enemy in range
+          for (const enemy of enemies) {
+            const distance = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+            if (distance <= this.range) {
+              bullets.push(new Bullet(this.x, this.y, enemy));
+              this.lastFired = now;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // Enemy class
+    class Enemy {
+      constructor() {
+        this.x = path[0].x;
+        this.y = path[0].y;
+        this.speed = 2;
+        this.health = 50;
+        this.width = 20;
+        this.height = 20;
+        this.pathIndex = 0;
+      }
+
+      move() {
+        const target = path[this.pathIndex + 1];
+        if (!target) return;
+
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance < this.speed) {
+          this.x = target.x;
+          this.y = target.y;
+          this.pathIndex++;
+        } else {
+          this.x += (dx / distance) * this.speed;
+          this.y += (dy / distance) * this.speed;
+        }
+      }
+
+      draw() {
+        ctx.fillStyle = "red";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+      }
+    }
+
+    // Bullet class
+    class Bullet {
+      constructor(x, y, target) {
+        this.x = x;
+        this.y = y;
+        this.target = target;
+        this.speed = 5;
+      }
+
+      move() {
+        const dx = this.target.x - this.x;
+        const dy = this.target.y - this.y;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance < this.speed) {
+          this.x = this.target.x;
+          this.y = this.target.y;
+          this.target.health -= 10;
+
+          // Remove bullet if target is dead
+          if (this.target.health <= 0) {
+            const index = enemies.indexOf(this.target);
+            if (index > -1) enemies.splice(index, 1);
+            coins += 10; // Gain coins for killing enemy
+            document.getElementById("coins").textContent = coins;
+          }
+          const bulletIndex = bullets.indexOf(this);
+          if (bulletIndex > -1) bullets.splice(bulletIndex, 1);
+        } else {
+          this.x += (dx / distance) * this.speed;
+          this.y += (dy / distance) * this.speed;
+        }
+      }
+
+      draw() {
+        ctx.fillStyle = "yellow";
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Handle placing towers
+    canvas.addEventListener("click", (e) => {
+      if (coins >= 50) { // Towers cost 50 coins
+        towers.push(new Tower(e.offsetX, e.offsetY));
+        coins -= 50;
+        document.getElementById("coins").textContent = coins;
+      }
+    });
+
+    // Game loop
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Spawn enemies
+      enemyTimer++;
+      if (enemyTimer >= enemySpawnRate) {
+        enemies.push(new Enemy());
+        enemyTimer = 0;
+      }
+
+      // Update and draw enemies
+      for (const enemy of enemies) {
+        enemy.move();
+        enemy.draw();
+      }
+
+      // Update and draw towers
+      for (const tower of towers) {
+        tower.draw();
+        tower.shoot();
+      }
+
+      // Update and draw bullets
+      for (const bullet of bullets) {
+        bullet.move();
+        bullet.draw();
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
