@@ -119,36 +119,56 @@
         };
 
         function generateName() {
-            // Get selected letters
-            const firstNameLetter = document.getElementById('firstNameLetter').value;
-            const lastNamePart1Letter = document.getElementById('lastNamePart1Letter').value;
-            const lastNamePart2Letter = document.getElementById('lastNamePart2Letter').value;
+    // Get selected letters
+    const firstNameLetter = document.getElementById('firstNameLetter').value;
+    const lastNamePart1Letter = document.getElementById('lastNamePart1Letter').value;
+    const lastNamePart2Letter = document.getElementById('lastNamePart2Letter').value;
 
-            // Log the selected letters
-            console.log("First Name Letter:", firstNameLetter);
-            console.log("Last Name Part 1 Letter:", lastNamePart1Letter);
-            console.log("Last Name Part 2 Letter:", lastNamePart2Letter);
+    console.log("First Name Letter:", firstNameLetter);
+    console.log("Last Name Part 1 Letter:", lastNamePart1Letter);
+    console.log("Last Name Part 2 Letter:", lastNamePart2Letter);
 
-            // Check if all letters are selected
-            if (!firstNameLetter || !lastNamePart1Letter || !lastNamePart2Letter) {
-                document.getElementById('result').textContent = "Please select a letter from each dropdown menu.";
-                console.log("Error: Not all letters are selected.");
-                return;
-            }
+    // Check if all letters are selected
+    if (!firstNameLetter || !lastNamePart1Letter || !lastNamePart2Letter) {
+        document.getElementById('result').textContent = "Please select a letter from each dropdown menu.";
+        console.log("Error: Not all letters are selected.");
+        return;
+    }
 
-            // Select a first name that DOES NOT start with the selected first letter
-            const filteredFirstNames = Object.entries(firstNames).filter(([key]) => key !== firstNameLetter);
-            const randomFirstName = filteredFirstNames[Math.floor(Math.random() * filteredFirstNames.length)][1];
+    // Filter first names to exclude the selected letter
+    const filteredFirstNames = Object.entries(firstNames).filter(([key]) => key !== firstNameLetter);
+    console.log("Filtered First Names:", filteredFirstNames);
 
-            // Generate the name
-            const lastNamePart1Value = lastNamePart1[lastNamePart1Letter];
-            const lastNamePart2Value = lastNamePart2[lastNamePart2Letter];
-            const fullName = `${randomFirstName} ${lastNamePart1Value}${lastNamePart2Value}`;
+    if (filteredFirstNames.length === 0) {
+        console.log("Error: No valid first names available after filtering.");
+        document.getElementById('result').textContent = "Error: No valid first names available.";
+        return;
+    }
 
-            // Display the result
-            document.getElementById('result').textContent = `Generated Name: ${fullName}`;
-            console.log("Generated Name:", fullName);
-        }
+    // Select a random first name from the filtered list
+    const randomFirstName = filteredFirstNames[Math.floor(Math.random() * filteredFirstNames.length)][1];
+    console.log("Random First Name:", randomFirstName);
+
+    // Get the last name parts
+    const lastNamePart1Value = lastNamePart1[lastNamePart1Letter];
+    const lastNamePart2Value = lastNamePart2[lastNamePart2Letter];
+
+    console.log("Last Name Part 1:", lastNamePart1Value);
+    console.log("Last Name Part 2:", lastNamePart2Value);
+
+    if (!lastNamePart1Value || !lastNamePart2Value) {
+        console.log("Error: Last name parts are missing.");
+        document.getElementById('result').textContent = "Error: Last name parts are missing.";
+        return;
+    }
+
+    // Generate the full name
+    const fullName = `${randomFirstName} ${lastNamePart1Value}${lastNamePart2Value}`;
+    console.log("Generated Full Name:", fullName);
+
+    // Display the result
+    document.getElementById('result').textContent = `Generated Name: ${fullName}`;
+}
     </script>
 </body>
 </html>
