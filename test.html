@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funny Nickname Generator</title>
+    <title>Name Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,12 +18,104 @@
             border-radius: 5px;
             background-color: #f9f9f9;
         }
+        .section {
+            margin-bottom: 20px;
+        }
+        select {
+            margin-top: 10px;
+            padding: 5px;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>        Funny Nickname Generator</h1>
-        <p>Follow the instructions above each drop-down menu, then click "Generate" to see your new name!</p>
+        <h1>Name Generator</h1>
+        <h2>Welcome to the Name Generator</h2>
+        <p>This tool will help you generate a name based on the letters you select from the dropdown menus below.</p>
+
+        <!-- Section 1 -->
+        <div class="section">
+            <p>First Name Section</p>
+            <select id="firstNameLetter">
+                <option value="">Select a letter</option>
+                <!-- A-Z Options -->
+                <script>
+                    for (let i = 65; i <= 90; i++) {
+                        document.write(`<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="section">
+            <p>First Part of Last Name Section</p>
+            <select id="lastNamePart1Letter">
+                <option value="">Select a letter</option>
+                <!-- A-Z Options -->
+                <script>
+                    for (let i = 65; i <= 90; i++) {
+                        document.write(`<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="section">
+            <p>Last Part of Last Name Section</p>
+            <select id="lastNamePart2Letter">
+                <option value="">Select a letter</option>
+                <!-- A-Z Options -->
+                <script>
+                    for (let i = 65; i <= 90; i++) {
+                        document.write(`<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`);
+                    }
+                </script>
+            </select>
+        </div>
+
+        <!-- Generate Button -->
+        <button onclick="generateName()">Generate Name</button>
+
+        <!-- Result -->
+        <div class="result" id="result"></div>
     </div>
+
+    <script>
+        function generateName() {
+            // Get selected letters
+            const firstNameLetter = document.getElementById('firstNameLetter').value;
+            const lastNamePart1Letter = document.getElementById('lastNamePart1Letter').value;
+            const lastNamePart2Letter = document.getElementById('lastNamePart2Letter').value;
+
+            // Check if all letters are selected
+            if (!firstNameLetter || !lastNamePart1Letter || !lastNamePart2Letter) {
+                document.getElementById('result').textContent = "Please select a letter from each dropdown menu.";
+                return;
+            }
+
+            // Generate the name
+            const firstName = `${firstNameLetter}...`;
+            const lastName = `${lastNamePart1Letter}...${lastNamePart2Letter}`;
+            const fullName = `${firstName} ${lastName}`;
+
+            // Display the result
+            document.getElementById('result').textContent = `Generated Name: ${fullName}`;
+        }
+    </script>
 </body>
 </html>
