@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name Generator</title>
+    <title>Fantasy Name Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,16 +42,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>Name Generator</h1>
-        <h2>Welcome to the Name Generator</h2>
-        <p>This tool will help you generate a name based on the letters you select from the dropdown menus below.</p>
+        <h1>Fantasy Name Generator</h1>
+        <h2>Create Your Own Fantasy Name!</h2>
+        <p>Select a letter from each dropdown menu to generate a unique fantasy name, inspired by the game Prodigy.</p>
 
         <!-- Section 1 -->
         <div class="section">
             <p>First Name Section</p>
             <select id="firstNameLetter">
                 <option value="">Select a letter</option>
-                <!-- A-Z Options -->
                 <script>
                     for (let i = 65; i <= 90; i++) {
                         document.write(`<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`);
@@ -65,7 +64,6 @@
             <p>First Part of Last Name Section</p>
             <select id="lastNamePart1Letter">
                 <option value="">Select a letter</option>
-                <!-- A-Z Options -->
                 <script>
                     for (let i = 65; i <= 90; i++) {
                         document.write(`<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`);
@@ -79,7 +77,6 @@
             <p>Last Part of Last Name Section</p>
             <select id="lastNamePart2Letter">
                 <option value="">Select a letter</option>
-                <!-- A-Z Options -->
                 <script>
                     for (let i = 65; i <= 90; i++) {
                         document.write(`<option value="${String.fromCharCode(i)}">${String.fromCharCode(i)}</option>`);
@@ -96,6 +93,31 @@
     </div>
 
     <script>
+        // Mapping letters to name parts
+        const firstNames = {
+            A: "Aurora", B: "Blaise", C: "Cadmen", D: "Darian", E: "Ember",
+            F: "Faylen", G: "Galen", H: "Harlen", I: "Isolde", J: "Jarek",
+            K: "Kael", L: "Lyric", M: "Mira", N: "Nerissa", O: "Orin",
+            P: "Peregrin", Q: "Quorin", R: "Riven", S: "Sylas", T: "Tarian",
+            U: "Ulric", V: "Valen", W: "Wren", X: "Xavian", Y: "Yorick", Z: "Zarek"
+        };
+
+        const lastNamePart1 = {
+            A: "Celestial", B: "Dragon", C: "Ember", D: "Frost", E: "Shadow",
+            F: "Storm", G: "Wind", H: "Light", I: "Dark", J: "Moon",
+            K: "Flame", L: "Star", M: "Stone", N: "Leaf", O: "Wolf",
+            P: "Sky", Q: "Heart", R: "Sea", S: "Cloud", T: "Fire",
+            U: "Snow", V: "Sun", W: "Spirit", X: "Rain", Y: "Blade", Z: "Thunder"
+        };
+
+        const lastNamePart2 = {
+            A: "weaver", B: "rider", C: "breaker", D: "walker", E: "leader",
+            F: "mender", G: "caller", H: "keeper", I: "singer", J: "seeker",
+            K: "dancer", L: "runner", M: "hunter", N: "binder", O: "shaper",
+            P: "watcher", Q: "finder", R: "weaver", S: "chaser", T: "gazer",
+            U: "maker", V: "glider", W: "tamer", X: "spinner", Y: "bearer", Z: "forger"
+        };
+
         function generateName() {
             // Get selected letters
             const firstNameLetter = document.getElementById('firstNameLetter').value;
@@ -108,10 +130,14 @@
                 return;
             }
 
+            // Select a first name that DOES NOT start with the selected first letter
+            const filteredFirstNames = Object.entries(firstNames).filter(([key]) => key !== firstNameLetter);
+            const randomFirstName = filteredFirstNames[Math.floor(Math.random() * filteredFirstNames.length)][1];
+
             // Generate the name
-            const firstName = `${firstNameLetter}...`;
-            const lastName = `${lastNamePart1Letter}...${lastNamePart2Letter}`;
-            const fullName = `${firstName} ${lastName}`;
+            const lastNamePart1 = lastNamePart1[lastNamePart1Letter];
+            const lastNamePart2 = lastNamePart2[lastNamePart2Letter];
+            const fullName = `${randomFirstName} ${lastNamePart1}${lastNamePart2}`;
 
             // Display the result
             document.getElementById('result').textContent = `Generated Name: ${fullName}`;
