@@ -32,10 +32,40 @@
         p {
             margin: 10px 0;
         }
-        .dropdown {
+        .example-box {
             margin: 10px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
         }
     </style>
+    <script>
+        // JavaScript for Random Number Generator
+        function generateRandomNumber() {
+            const min = parseInt(document.getElementById('min').value) || 0;
+            const max = parseInt(document.getElementById('max').value) || 100;
+            const result = Math.floor(Math.random() * (max - min + 1)) + min;
+            document.getElementById('randomResult').textContent = `Random Number: ${result}`;
+        }
+
+        // JavaScript for Changing Background Color
+        function changeBackgroundColor() {
+            const color = document.getElementById('bgColor').value;
+            document.body.style.backgroundColor = color;
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -57,11 +87,11 @@
         </section>
         <section>
             <h2>Videos</h2>
-            <p>You can embed videos using the <code>&lt;video&gt;</code> tag. Here is an example:</p>
-            <video controls style="max-width: 100%; height: auto;">
-                <source src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <p>You can embed videos using the <code>&lt;iframe&gt;</code> tag. Here is an example of a YouTube video:</p>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                    title="YouTube video player" frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+            </iframe>
         </section>
         <section>
             <h2>Drop-down Menus</h2>
@@ -100,6 +130,27 @@
                 <input type="email" id="email" name="email" placeholder="Enter your email"><br><br>
                 <input type="submit" value="Submit">
             </form>
+        </section>
+        <section>
+            <h2>Random Number Generator</h2>
+            <p>Here is an interactive random number generator:</p>
+            <div class="example-box">
+                <label for="min">Minimum:</label>
+                <input type="number" id="min" placeholder="Enter min value" /><br><br>
+                <label for="max">Maximum:</label>
+                <input type="number" id="max" placeholder="Enter max value" /><br><br>
+                <button onclick="generateRandomNumber()">Generate</button>
+                <p id="randomResult"></p>
+            </div>
+        </section>
+        <section>
+            <h2>Background Color Changer</h2>
+            <p>Use this tool to change the background color of the webpage:</p>
+            <div class="example-box">
+                <label for="bgColor">Select a color:</label>
+                <input type="color" id="bgColor"><br><br>
+                <button onclick="changeBackgroundColor()">Change Background Color</button>
+            </div>
         </section>
     </main>
 </body>
