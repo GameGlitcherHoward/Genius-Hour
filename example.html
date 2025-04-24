@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>HTML Features Showcase</title>
+    <title>HTML Features Showcase with Tutorials</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,6 +39,13 @@
             border-radius: 5px;
             border: 1px solid #ddd;
         }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-left: 4px solid #333;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
         button {
             padding: 10px 15px;
             background-color: #333;
@@ -69,21 +76,35 @@
 </head>
 <body>
     <header>
-        <h1>HTML Features Showcase</h1>
+        <h1>HTML Features Showcase with Tutorials</h1>
     </header>
     <main>
         <section>
             <h2>Text</h2>
             <p>This is an example of text in HTML. You can use tags like <strong>&lt;strong&gt;</strong> to make text bold or <em>&lt;em&gt;</em> to italicize text.</p>
+            <h3>How to Create:</h3>
+            <pre>
+&lt;p&gt;This is a normal paragraph.&lt;/p&gt;
+&lt;p&gt;This is &lt;strong&gt;bold&lt;/strong&gt; text.&lt;/p&gt;
+&lt;p&gt;This is &lt;em&gt;italic&lt;/em&gt; text.&lt;/p&gt;
+            </pre>
         </section>
         <section>
             <h2>Links</h2>
             <p>Here is an example of a link: <a href="https://www.example.com" target="_blank">Visit Example.com</a>.</p>
+            <h3>How to Create:</h3>
+            <pre>
+&lt;a href="https://www.example.com" target="_blank"&gt;Visit Example.com&lt;/a&gt;
+            </pre>
         </section>
         <section>
             <h2>Images</h2>
             <p>HTML allows you to display images. Here is an example:</p>
             <img src="https://via.placeholder.com/300" alt="Example Image" style="max-width: 100%; height: auto;">
+            <h3>How to Create:</h3>
+            <pre>
+&lt;img src="https://via.placeholder.com/300" alt="Example Image"&gt;
+            </pre>
         </section>
         <section>
             <h2>Videos</h2>
@@ -92,6 +113,14 @@
                     title="YouTube video player" frameborder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
             </iframe>
+            <h3>How to Create:</h3>
+            <pre>
+&lt;iframe width="560" height="315" 
+    src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+    title="YouTube video player" frameborder="0" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowfullscreen&gt;&lt;/iframe&gt;
+            </pre>
         </section>
         <section>
             <h2>Drop-down Menus</h2>
@@ -104,32 +133,14 @@
                     <option value="option3">Option 3</option>
                 </select>
             </div>
-        </section>
-        <section>
-            <h2>Lists</h2>
-            <p>HTML supports ordered and unordered lists. Here is an example:</p>
-            <ul>
-                <li>Unordered List Item 1</li>
-                <li>Unordered List Item 2</li>
-                <li>Unordered List Item 3</li>
-            </ul>
-            <p>Ordered list:</p>
-            <ol>
-                <li>Ordered List Item 1</li>
-                <li>Ordered List Item 2</li>
-                <li>Ordered List Item 3</li>
-            </ol>
-        </section>
-        <section>
-            <h2>Forms</h2>
-            <p>Here is an example of a form:</p>
-            <form>
-                <label for="name">Name:</label><br>
-                <input type="text" id="name" name="name" placeholder="Enter your name"><br><br>
-                <label for="email">Email:</label><br>
-                <input type="email" id="email" name="email" placeholder="Enter your email"><br><br>
-                <input type="submit" value="Submit">
-            </form>
+            <h3>How to Create:</h3>
+            <pre>
+&lt;select id="options"&gt;
+    &lt;option value="option1"&gt;Option 1&lt;/option&gt;
+    &lt;option value="option2"&gt;Option 2&lt;/option&gt;
+    &lt;option value="option3"&gt;Option 3&lt;/option&gt;
+&lt;/select&gt;
+            </pre>
         </section>
         <section>
             <h2>Random Number Generator</h2>
@@ -142,6 +153,24 @@
                 <button onclick="generateRandomNumber()">Generate</button>
                 <p id="randomResult"></p>
             </div>
+            <h3>How to Create:</h3>
+            <pre>
+&lt;script&gt;
+function generateRandomNumber() {
+    const min = parseInt(document.getElementById('min').value) || 0;
+    const max = parseInt(document.getElementById('max').value) || 100;
+    const result = Math.floor(Math.random() * (max - min + 1)) + min;
+    document.getElementById('randomResult').textContent = `Random Number: ${result}`;
+}
+&lt;/script&gt;
+
+&lt;label for="min"&gt;Minimum:&lt;/label&gt;
+&lt;input type="number" id="min" placeholder="Enter min value"&gt;&lt;br&gt;&lt;br&gt;
+&lt;label for="max"&gt;Maximum:&lt;/label&gt;
+&lt;input type="number" id="max" placeholder="Enter max value"&gt;&lt;br&gt;&lt;br&gt;
+&lt;button onclick="generateRandomNumber()"&gt;Generate&lt;/button&gt;
+&lt;p id="randomResult"&gt;&lt;/p&gt;
+            </pre>
         </section>
         <section>
             <h2>Background Color Changer</h2>
@@ -151,6 +180,19 @@
                 <input type="color" id="bgColor"><br><br>
                 <button onclick="changeBackgroundColor()">Change Background Color</button>
             </div>
+            <h3>How to Create:</h3>
+            <pre>
+&lt;script&gt;
+function changeBackgroundColor() {
+    const color = document.getElementById('bgColor').value;
+    document.body.style.backgroundColor = color;
+}
+&lt;/script&gt;
+
+&lt;label for="bgColor"&gt;Select a color:&lt;/label&gt;
+&lt;input type="color" id="bgColor"&gt;&lt;br&gt;&lt;br&gt;
+&lt;button onclick="changeBackgroundColor()"&gt;Change Background Color&lt;/button&gt;
+            </pre>
         </section>
     </main>
 </body>
