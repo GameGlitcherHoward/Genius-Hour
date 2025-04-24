@@ -1,15 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Genius Hour Example Webpage</title>
+    <title>HTML Features Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        main {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            margin: 10px 0;
+        }
+        .dropdown {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-
-<h1>Genius Hour Example Webpage</h1>
-<p>This is an example of a webpage made using HTML. A web using HTML can include many things. Here are some examples:<br>- text<br>Here is an example of text<br>- image<br><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTP3A9Cb804Lgo0q9E1CBWz-FUZ3GGS-FDlBQ&s" alt="Tech Wallpaper"><br>-video
-  <iframe width="420" height="315"
-src="https://www.youtube.com/embed/tgbNymZ7vqY">
-</iframe></p>
-
+    <header>
+        <h1>HTML Features Showcase</h1>
+    </header>
+    <main>
+        <section>
+            <h2>Text</h2>
+            <p>This is an example of text in HTML. You can use tags like <strong>&lt;strong&gt;</strong> to make text bold or <em>&lt;em&gt;</em> to italicize text.</p>
+        </section>
+        <section>
+            <h2>Links</h2>
+            <p>Here is an example of a link: <a href="https://www.example.com" target="_blank">Visit Example.com</a>.</p>
+        </section>
+        <section>
+            <h2>Images</h2>
+            <p>HTML allows you to display images. Here is an example:</p>
+            <img src="https://via.placeholder.com/300" alt="Example Image" style="max-width: 100%; height: auto;">
+        </section>
+        <section>
+            <h2>Videos</h2>
+            <p>You can embed videos using the <code>&lt;video&gt;</code> tag. Here is an example:</p>
+            <video controls style="max-width: 100%; height: auto;">
+                <source src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </section>
+        <section>
+            <h2>Drop-down Menus</h2>
+            <p>Drop-down menus can be created using the <code>&lt;select&gt;</code> tag. Here is an example:</p>
+            <div class="dropdown">
+                <label for="options">Choose an option:</label>
+                <select id="options">
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            </div>
+        </section>
+        <section>
+            <h2>Lists</h2>
+            <p>HTML supports ordered and unordered lists. Here is an example:</p>
+            <ul>
+                <li>Unordered List Item 1</li>
+                <li>Unordered List Item 2</li>
+                <li>Unordered List Item 3</li>
+            </ul>
+            <p>Ordered list:</p>
+            <ol>
+                <li>Ordered List Item 1</li>
+                <li>Ordered List Item 2</li>
+                <li>Ordered List Item 3</li>
+            </ol>
+        </section>
+        <section>
+            <h2>Forms</h2>
+            <p>Here is an example of a form:</p>
+            <form>
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" placeholder="Enter your name"><br><br>
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" placeholder="Enter your email"><br><br>
+                <input type="submit" value="Submit">
+            </form>
+        </section>
+    </main>
 </body>
 </html>
